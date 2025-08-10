@@ -16,7 +16,7 @@ impl KyomuRegex {
         for ch in input.chars() {
             reg = reg.derivative(ch);
         }
-        return reg.match_eps();
+        reg.match_empty()
     }
 
     pub fn derivative(&self, ch: char) -> KyomuRegex {
@@ -33,6 +33,16 @@ impl KyomuRegex {
             Eps => Empty,
 
             Empty => Empty,
+
+            Concat(left, right) => {
+                let left = Concat(Box::new(left.derivative(ch)), right.clone());
+                if left.match_empty() {
+                    let right = right.derivative(ch);
+                    Or(Box::new(left), Box::new(right).simplify())
+                } else {
+                    left.simplify()
+                }
+            }
 
             _ => {
                 unreachable!()
