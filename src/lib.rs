@@ -49,7 +49,12 @@ impl KyomuRegex {
                     Box::new(right.derivative(ch)),
                 )
             }
-            
+            Star(left) => {
+                Concat(
+                    Box::new(left.derivative(ch)),
+                    Box::new(Star(left.clone())),
+                )
+            }
             _ => {
                 unreachable!()
             }
