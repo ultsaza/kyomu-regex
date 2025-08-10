@@ -35,10 +35,16 @@ impl KyomuRegex {
             Empty => Empty,
 
             Concat(left, right) => {
-                let left = Concat(Box::new(left.derivative(ch)), right.clone());
+                let left = Concat(
+                    Box::new(left.derivative(ch)), 
+                    right.clone()
+                );
                 if left.match_eps() {
                     let right = right.derivative(ch);
-                    Or(Box::new(left), Box::new(right))
+                    Or(
+                        Box::new(left), 
+                        Box::new(right)
+                    )
                 } else {
                     left
                 }
@@ -68,5 +74,12 @@ impl KyomuRegex {
                 Star(_) => true,
             }
         }
+    pub fn delta(&self) -> KyomuRegex {
+        if self.match_eps() {
+            KyomuRegex::Eps
+        } else {
+            KyomuRegex::Empty
+        }
+    }
 }
 
