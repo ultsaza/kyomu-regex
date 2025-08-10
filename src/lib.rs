@@ -21,7 +21,7 @@ impl KyomuRegex {
 
     pub fn derivative(&self, ch: char) -> KyomuRegex {
         use KyomuRegex::*;
-        fn s_or(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex {
+        fn s_or(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex{
             if left == right {
                 left
             } else if left == Empty {
@@ -32,7 +32,7 @@ impl KyomuRegex {
                 Or(Box::new(left), Box::new(right))
             }
         }
-        fn s_concat(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex {
+        fn s_concat(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex{
             if left == Eps {
                 right
             } else if right == Eps{
@@ -57,19 +57,10 @@ impl KyomuRegex {
             Empty => Empty,
 
             Concat(left, right) => {
-                let left = Concat(
-                    Box::new(left.derivative(ch)), 
-                    right.clone()
-                );
-                if left.match_eps() {
-                    let right = right.derivative(ch);
-                    Or(
-                        Box::new(left), 
-                        Box::new(right)
-                    )
-                } else {
-                    left
-                }
+                s_or(
+                    s_concat(left.derivative(ch), *right.clone()),
+                    s_concat(left.delta(), right.derivative(ch))
+                )
             }
             Or(left, right) => {
                 Or(
