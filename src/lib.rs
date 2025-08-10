@@ -2,12 +2,12 @@ use std::char;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum KyomuRegex {
-    Char(char), 
-    Eps,
-    Empty,
-    Concat(Box<KyomuRegex>, Box<KyomuRegex>),
-    Or(Box<KyomuRegex>, Box<KyomuRegex>),
-    Star(Box<KyomuRegex>),
+    Char(char),                                 // a single character
+    Eps,                                        // ε
+    Empty,                                      // ∅
+    Concat(Box<KyomuRegex>, Box<KyomuRegex>),   // ⋅ 
+    Or(Box<KyomuRegex>, Box<KyomuRegex>),       // +
+    Star(Box<KyomuRegex>),                      // *
 }
 
 impl KyomuRegex {
@@ -18,9 +18,9 @@ impl KyomuRegex {
         }
         reg.match_eps()
     }
-
     pub fn derivative(&self, ch: char) -> KyomuRegex {
         use KyomuRegex::*;
+        // Helper to operate or
         fn s_or(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex{
             match (left, right) {
                 (l, r) if l == r => l,
@@ -29,6 +29,7 @@ impl KyomuRegex {
                 (l, r) => Or(Box::new(l), Box::new(r)),
             }
         }
+        // Helper to operate concat
         fn s_concat(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex{
             match (left, right) {
                 (Eps, r) => r,
@@ -38,31 +39,25 @@ impl KyomuRegex {
             }
         }
         match self {
-            Char(c) => {
-                if *c == ch {
-                    Eps
-                } else {
-                    Empty
-                }
-            }
-
-            Eps => Empty,
-
-            Empty => Empty,
-
+            Char(c) => if *c == ch { Eps } else { Empty },  // D(c) = ε
+            Eps => Empty,                                   // D(ε) = ∅      
+            Empty => Empty,                                 // D(∅) = ∅
             Concat(left, right) => {
+                // D(left ⋅ right) = D(left) ⋅ right + δ(left) ⋅ D(right)
                 s_or(
                     s_concat(left.derivative(ch), *right.clone()),
                     s_concat(left.delta(), right.derivative(ch))
                 )
             }
             Or(left, right) => {
+                // D(left + right) = D(left) + D(right)
                 s_or(
                     left.derivative(ch),
                     right.derivative(ch)
                 )
             }
             Star(left) => {
+                // D(left*) = D(left) ⋅ left*
                 s_concat(
                     left.derivative(ch), 
                     Star(left.clone())
@@ -81,19 +76,17 @@ impl KyomuRegex {
                 Star(_) => true,
             }
         }
+    // implementation of δ
     pub fn delta(&self) -> KyomuRegex {
-        if self.match_eps() {
-            KyomuRegex::Eps
-        } else {
-            KyomuRegex::Empty
-        }
+        use KyomuRegex::*;
+        if self.match_eps() { Eps } else { Empty }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    
     macro_rules! chr { ($ch:expr) => { KyomuRegex::Char($ch) }; }
     macro_rules! eps { () => { KyomuRegex::Eps }; }
     macro_rules! empty { () => { KyomuRegex::Empty }; }
@@ -103,11 +96,23 @@ mod tests {
 
     #[test]
     fn simple_match() {
-        let r = concat!( star!( or!( chr!('a'), chr!('b') ) ),
-                      concat!( chr!('a'), chr!('b') ) );
+        // (a+b)*(ab)
+        let r = concat!(
+                    star!(
+                        or!(
+                            chr!('a'),
+                            chr!('b')
+                        )
+                    ),
+                    concat!(
+                        chr!('a'),
+                        chr!('b')
+                    )
+                );
         assert!( r.whole_match("ab") );
         assert!( r.whole_match("aab") );
         assert!( r.whole_match("babab") );
         assert!(!r.whole_match("aba") );
+        assert!(!r.whole_match("abc") );
     }
 }
