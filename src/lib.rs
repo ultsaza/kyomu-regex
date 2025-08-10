@@ -22,25 +22,19 @@ impl KyomuRegex {
     pub fn derivative(&self, ch: char) -> KyomuRegex {
         use KyomuRegex::*;
         fn s_or(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex{
-            if left == right {
-                left
-            } else if left == Empty {
-                right 
-            } else if right == Empty {
-                left
-            } else {
-                Or(Box::new(left), Box::new(right))
+            match (left, right) {
+                (l, r) if l == r => l,
+                (Empty, r) => r,
+                (l, Empty) => l,
+                (l, r) => Or(Box::new(l), Box::new(r)),
             }
         }
         fn s_concat(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex{
-            if left == Eps {
-                right
-            } else if right == Eps{
-                left
-            } else if  left == Empty || right == Empty {
-                Empty
-            } else {
-                Concat(Box::new(left), Box::new(right))
+            match (left, right) {
+                (Eps, r) => r,
+                (l, Eps) => l,
+                (Empty, _) | (_, Empty) => Empty,
+                (l, r) => Concat(Box::new(l), Box::new(r)),
             }
         }
         match self {
@@ -116,5 +110,4 @@ mod tests {
         assert!( r.whole_match("babab") );
         assert!(!r.whole_match("aba") );
     }
-
 }
