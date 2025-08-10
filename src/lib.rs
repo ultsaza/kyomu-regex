@@ -38,12 +38,18 @@ impl KyomuRegex {
                 let left = Concat(Box::new(left.derivative(ch)), right.clone());
                 if left.match_empty() {
                     let right = right.derivative(ch);
-                    Or(Box::new(left), Box::new(right).simplify())
+                    Or(Box::new(left), Box::new(right))
                 } else {
-                    left.simplify()
+                    left
                 }
             }
-
+            Or(left, right) => {
+                Or(
+                    Box::new(left.derivative(ch)),
+                    Box::new(right.derivative(ch)),
+                )
+            }
+            
             _ => {
                 unreachable!()
             }
