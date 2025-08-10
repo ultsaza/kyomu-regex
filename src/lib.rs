@@ -63,15 +63,15 @@ impl KyomuRegex {
                 )
             }
             Or(left, right) => {
-                Or(
-                    Box::new(left.derivative(ch)),
-                    Box::new(right.derivative(ch)),
+                s_or(
+                    left.derivative(ch),
+                    right.derivative(ch)
                 )
             }
             Star(left) => {
-                Concat(
-                    Box::new(left.derivative(ch)),
-                    Box::new(Star(left.clone())),
+                s_concat(
+                    left.derivative(ch), 
+                    Star(left.clone())
                 )
             }
         }
