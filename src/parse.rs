@@ -14,8 +14,8 @@ pub struct Parser<'a> {
 }
 type Result<T> = std::result::Result<T, String>;
 
-fn error_msg(expexted: &[Token], actual: &Token) -> String {
-    let expexted = exptected
+fn error_msg(expected: &[Token], actual: &Token) -> String {
+    let expexted = expected
         .iter()
         .map(|t| format!("'{}'", t))
         .collect::<Vec<_>>()
@@ -24,5 +24,5 @@ fn error_msg(expexted: &[Token], actual: &Token) -> String {
         Token::TkChar(c) => format!("'{}'", c),
         _ => format!("'{}'", actual),
     };
-    format!("Expected one of [{}], found {}", expected, actual)
+    format!("Expected one of [{:?}], found {}", expected, actual)
 }

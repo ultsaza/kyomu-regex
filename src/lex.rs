@@ -1,4 +1,5 @@
 use std::str::Chars;
+use std::fmt::Display;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Token {
@@ -11,6 +12,21 @@ pub enum Token {
 }
 pub struct Lexer<'a> {
     string: Chars<'a>
+}
+
+impl Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Token::*;
+        let str = match self {
+            TkChar(_) => "Char",
+            TkOr => "|",
+            TkStar => "*",
+            TkLparen => "(",
+            TkRparen => ")",
+            TkEps => "ε",
+        };
+        write!(f, "{}", str)
+    }
 }
 
 impl Lexer<'_> {
