@@ -1,5 +1,6 @@
 use std::char;
-
+mod parse;
+mod lex;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum KyomuRegex {
     Char(char),                                 // a single character
