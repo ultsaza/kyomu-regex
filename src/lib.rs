@@ -145,4 +145,15 @@ mod tests {
         assert!(!r.whole_match("aba") );
         assert!(!r.whole_match("abc") );
     }
+
+    #[test]
+    fn parse_and_match_from_string() {
+        let r:KyomuRegex = "a|(bc)*".parse().unwrap();
+        assert!(r.whole_match(""));
+        assert!(r.whole_match("a"));
+        assert!(r.whole_match("bc"));
+        assert!(r.whole_match("bcbc"));
+        assert!(!r.whole_match("b"));
+        assert!(!r.whole_match("abc"));
+    }
 }
