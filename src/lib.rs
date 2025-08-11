@@ -1,4 +1,4 @@
-use std::char;
+use std::{char};
 mod parse;
 mod lex;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -99,6 +99,12 @@ impl KyomuRegex {
                 Box::new(Self::from_ast(*right))
             ),
         }
+    }
+
+    pub fn compile(pattern: &str) -> Result<Self, String> {
+        let mut parser = crate::parse::Parser::new(crate::lex::Lexer::new(pattern));
+        let ast = parser.parse()?;
+        Ok(Self::from_ast(ast))
     }
 }
 
