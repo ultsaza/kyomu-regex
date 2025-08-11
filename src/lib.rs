@@ -108,6 +108,13 @@ impl KyomuRegex {
     }
 }
 
+impl std::str::FromStr for KyomuRegex {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::compile(s)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
