@@ -3,7 +3,7 @@ use crate::lex::{self, *};
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Node {
     NdChar(char),
-    NdEmpty,
+    NdEps,
     NdStar(Box<Node>),
     NdOr(Box<Node>, Box<Node>),
     NdConcat(Box<Node>, Box<Node>),
@@ -91,7 +91,7 @@ impl Parser<'_> {
     fn seq(&mut self) -> Result<Node> {
         match &self.look {
             Token::TkLparen | Token::TkChar(_) => self.sub_seq(),
-            _ => Ok(Node::NdEmpty),
+            _ => Ok(Node::NdEps),
         }
     }
 

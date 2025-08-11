@@ -82,6 +82,24 @@ impl KyomuRegex {
         use KyomuRegex::*;
         if self.match_eps() { Eps } else { Empty }
     }
+
+    fn from_ast(node: crate::parse::Node) -> Self {
+        use crate::parse::Node::*;
+        use KyomuRegex::*;
+        match node {
+            NdChar(c) => Char(c),
+            NdEps => Eps,
+            NdStar(left) => Star(Box::new(Self::from_ast(*left))),
+            NdConcat(left, right) => Concat(
+                Box::new(Self::from_ast(*left)),
+                Box::new(Self::from_ast(*right))
+            ),
+            NdOr(left, right) => Or(
+                Box::new(Self::from_ast(*left)),
+                Box::new(Self::from_ast(*right))
+            ),
+        }
+    }
 }
 
 #[cfg(test)]
