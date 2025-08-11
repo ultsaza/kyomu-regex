@@ -9,11 +9,15 @@ fn main() {
     input! { text: String }
     match KyomuRegex::compile(&pattern) {
         Ok(regex) => {
-            if regex.whole_match(&text) {
+            let start = std::time::Instant::now();
+            let is_matched = regex.whole_match(&text);
+            let duration = start.elapsed();
+            if is_matched {
                 println!("{}", "Matched!".green());
             } else {
                 println!("{}", "Not matched.".red());
             }
+            println!("Duration: {:.8?}", duration.as_secs_f64());
         }
         Err(e) => {
             eprintln!("Error compiling regex: {}", e);
