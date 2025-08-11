@@ -7,5 +7,3 @@ Brzozowski derivativeを用いて実装した正規表現エンジン
 ```shell
 cargo run --package kyomu-regex --bin kyomu-regex
 ```
-
-## memo (個人用)

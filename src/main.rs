@@ -17,7 +17,7 @@ fn main() {
             } else {
                 println!("{}", "Not matched.".red());
             }
-            println!("Duration: {:.8?}", duration.as_secs_f64());
+            println!("Duration: {:.8?}[s]", duration.as_secs_f64());
         }
         Err(e) => {
             eprintln!("Error compiling regex: {}", e);
