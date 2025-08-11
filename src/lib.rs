@@ -88,8 +88,6 @@ mod tests {
     use super::*;
     
     macro_rules! chr { ($ch:expr) => { KyomuRegex::Char($ch) }; }
-    macro_rules! eps { () => { KyomuRegex::Eps }; }
-    macro_rules! empty { () => { KyomuRegex::Empty }; }
     macro_rules! concat { ($left:expr, $right:expr) => { KyomuRegex::Concat(Box::new($left), Box::new($right)) }; }
     macro_rules! or { ($left:expr, $right:expr) => { KyomuRegex::Or(Box::new($left), Box::new($right)) }; }
     macro_rules! star { ($left:expr) => { KyomuRegex::Star(Box::new($left)) }; }
