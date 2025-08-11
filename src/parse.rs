@@ -26,3 +26,14 @@ fn error_msg(expected: &[Token], actual: &Token) -> String {
     };
     format!("Expected one of [{:?}], found {}", expected, actual)
 }
+
+impl Parser<'_> {
+    fn match_next(&mut self, token: Token) -> Result<()> {
+        if self.look == token {
+            self.look = self.lexer.next_token();
+            Ok(())
+        } else {
+            Err(error_msg(&[token], &self.look))
+        }
+    }
+}
