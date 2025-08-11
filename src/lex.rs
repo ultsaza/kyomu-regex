@@ -1,6 +1,5 @@
 use std::str::Chars;
 use std::fmt::Display;
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Token {
     TkChar(char),
@@ -10,6 +9,7 @@ pub enum Token {
     TkRparen,
     TkEps
 }
+
 pub struct Lexer<'a> {
     string: Chars<'a>
 }

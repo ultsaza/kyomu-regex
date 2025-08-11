@@ -1,6 +1,4 @@
-use std::fmt::Result;
-
-use crate::lex::*;
+use crate::lex::{self, *};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Node {
@@ -30,6 +28,14 @@ fn error_msg(expected: &[Token], actual: &Token) -> String {
 }
 
 impl Parser<'_> {
+    pub fn new(mut lexer: Lexer) -> Parser{
+        let node = lexer.next_token();
+        Parser {
+            lexer,
+            look: node,
+        }
+    }
+
     fn match_next(&mut self, token: Token) -> Result<()> {
         if self.look == token {
             self.look = self.lexer.next_token();
@@ -116,3 +122,23 @@ impl Parser<'_> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::lex::*;
+    use crate::parse::*;
+
+    #[test]
+    fn expression() {
+        let mut parser = Parser::new(Lexer::new(r"a|(bc)*"));
+        assert_eq!(
+            parser.expr(),
+            Ok(Node::NdOr(
+                Box::new(Node::NdChar('a')),
+                Box::new(Node::NdStar(Box::new(Node::NdConcat(
+                    Box::new(Node::NdChar('b')),
+                    Box::new(Node::NdChar('c'))
+                ))))
+            ))
+        );
+    }
+}
