@@ -34,3 +34,52 @@ impl Lexer<'_> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn scan_chars() {
+        let mut lexer = Lexer::new("a|b* (c|d)");
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('a')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_OR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('b')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_STAR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_LPAREN));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('c')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_OR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('d')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_RPAREN));
+        assert_eq!(lexer.next_token(), Some(Token::TK_EPS));
+    }
+
+    #[test]
+    fn scan_escape() {
+        let mut lexer = Lexer::new("\\a|\\b* (c|d)");
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('a')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_OR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('b')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_STAR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_LPAREN));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('c')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_OR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('d')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_RPAREN));
+        assert_eq!(lexer.next_token(), Some(Token::TK_EPS));
+    }
+
+    #[test]
+    fn scan_whitespace() {
+        let mut lexer = Lexer::new("a\t \n| b* (c | \td)");
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('a')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_OR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('b')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_STAR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_LPAREN));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('c')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_OR));
+        assert_eq!(lexer.next_token(), Some(Token::TK_CHAR('d')));
+        assert_eq!(lexer.next_token(), Some(Token::TK_RPAREN));
+        assert_eq!(lexer.next_token(), Some(Token::TK_EPS));
+    }
+}
