@@ -1,4 +1,4 @@
-use crate::lex::{self, *};
+use crate::lex::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Node {
@@ -15,7 +15,7 @@ pub struct Parser<'a> {
 type Result<T> = std::result::Result<T, String>;
 
 fn error_msg(expected: &[Token], actual: &Token) -> String {
-    let expexted = expected
+    let expected = expected
         .iter()
         .map(|t| format!("'{}'", t))
         .collect::<Vec<_>>()
@@ -74,7 +74,7 @@ impl Parser<'_> {
     }
 
     fn sub_seq(&mut self) -> Result<Node> {
-        let mut star = self.star();
+        let star = self.star();
         match &self.look {
             Token::TkLparen | Token::TkChar(_) => {
                 Ok(
@@ -96,7 +96,7 @@ impl Parser<'_> {
     }
 
     fn sub_expr(&mut self) -> Result<Node> {
-        let mut seq = self.seq()?;
+        let seq = self.seq()?;
         match &self.look {
             Token::TkOr => {
                 self.match_next(Token::TkOr)?;
