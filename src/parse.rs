@@ -1,3 +1,5 @@
+use std::fmt::Result;
+
 use crate::lex::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -108,4 +110,9 @@ impl Parser<'_> {
         self.match_next(Token::TkEps)?;
         expr
     }
+
+    pub fn parse(&mut self) -> Result<Node> {
+        self.expr()
+    }
 }
+
