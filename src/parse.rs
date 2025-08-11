@@ -48,7 +48,7 @@ impl Parser<'_> {
             Token::TkChar(c) => {
                 let node = Node::NdChar(*c);
                 self.match_next(Token::TkChar(*c))?;
-                node
+                Ok(node)
             }
             _ => Err(error_msg(&[Token::TkLparen, Token::TkChar('_')], &self.look)),
         }
@@ -66,7 +66,7 @@ impl Parser<'_> {
     }
 
     fn sub_seq(&mut self) -> Result<Node> {
-        let mut left = self.star()?;
+        let mut star = self.star();
         match &self.look {
             Token::TkLparen | Token::TkChar(_) => {
                 Ok(
@@ -92,9 +92,9 @@ impl Parser<'_> {
         match &self.look {
             Token::TkOr => {
                 self.match_next(Token::TkOr)?;
-                OK(
+                Ok(
                     Node::NdOr(
-                        Box::new(seq?),
+                        Box::new(seq),
                         Box::new(self.sub_expr()?),
                     ),
                 )
