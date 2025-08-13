@@ -1,4 +1,4 @@
-use std::{char};
+use std::char;
 mod parse;
 mod lex;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -19,7 +19,7 @@ impl KyomuRegex {
         }
         reg.match_eps()
     }
-    pub fn derivative(&self, ch: char) -> KyomuRegex {
+    pub fn derivative(&self, ch: char) -> Self {
         use KyomuRegex::*;
         // Helper to operate or
         fn s_or(left: KyomuRegex, right: KyomuRegex) -> KyomuRegex{
@@ -83,20 +83,20 @@ impl KyomuRegex {
         if self.match_eps() { Eps } else { Empty }
     }
 
-    fn from_ast(node: crate::parse::Node) -> Self {
+    fn build_from_ast(node: crate::parse::Node) -> Self {
         use crate::parse::Node::*;
         use KyomuRegex::*;
         match node {
             NdChar(c) => Char(c),
             NdEps => Eps,
-            NdStar(left) => Star(Box::new(Self::from_ast(*left))),
+            NdStar(left) => Star(Box::new(Self::build_from_ast(*left))),
             NdConcat(left, right) => Concat(
-                Box::new(Self::from_ast(*left)),
-                Box::new(Self::from_ast(*right))
+                Box::new(Self::build_from_ast(*left)),
+                Box::new(Self::build_from_ast(*right))
             ),
             NdOr(left, right) => Or(
-                Box::new(Self::from_ast(*left)),
-                Box::new(Self::from_ast(*right))
+                Box::new(Self::build_from_ast(*left)),
+                Box::new(Self::build_from_ast(*right))
             ),
         }
     }
@@ -104,7 +104,7 @@ impl KyomuRegex {
     pub fn compile(pattern: &str) -> Result<Self, String> {
         let mut parser = crate::parse::Parser::new(crate::lex::Lexer::new(pattern));
         let ast = parser.parse()?;
-        Ok(Self::from_ast(ast))
+        Ok(Self::build_from_ast(ast))
     }
 }
 
