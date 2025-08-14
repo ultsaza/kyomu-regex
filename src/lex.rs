@@ -5,6 +5,7 @@ pub enum Token {
     TkChar(char),
     TkOr,
     TkStar,
+    TkPlus,
     TkLparen,
     TkRparen,
     TkEps
@@ -21,6 +22,7 @@ impl Display for Token {
             TkChar(_) => "Char",
             TkOr => "|",
             TkStar => "*",
+            TkPlus => "+",
             TkLparen => "(",
             TkRparen => ")",
             TkEps => "ε",
@@ -46,6 +48,7 @@ impl Lexer<'_> {
             '(' => TkLparen,
             ')' => TkRparen,
             '*' => TkStar,
+            '+' => TkPlus,
             ' ' | '\n' | '\t' => self.next_token(), // skip whitespace
             _ => TkChar(ch)
         }
@@ -88,11 +91,11 @@ mod tests {
 
     #[test]
     fn scan_whitespace() {
-        let mut lexer = Lexer::new("a\t \n| b* (c | \td)");
+        let mut lexer = Lexer::new("a\t \n| b+ (c | \td)");
         assert_eq!(lexer.next_token(), (Token::TkChar('a')));
         assert_eq!(lexer.next_token(), (Token::TkOr));
         assert_eq!(lexer.next_token(), (Token::TkChar('b')));
-        assert_eq!(lexer.next_token(), (Token::TkStar));
+        assert_eq!(lexer.next_token(), (Token::TkPlus));
         assert_eq!(lexer.next_token(), (Token::TkLparen));
         assert_eq!(lexer.next_token(), (Token::TkChar('c')));
         assert_eq!(lexer.next_token(), (Token::TkOr));
