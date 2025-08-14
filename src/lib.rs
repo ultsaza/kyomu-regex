@@ -67,9 +67,15 @@ impl KyomuRegex {
                 )
             }
             Plus(left) => {
-                // D(left+) = (D(left) | δ(left)) ⋅ left*
+                // D(left+) = D(left) ⋅ left* | δ(left) ⋅ D(left) ⋅ left*
                 s_concat(
-                    s_or(left.derivative(ch), left.delta()),
+                    s_or(
+                        left.derivative(ch),
+                        s_concat(
+                            left.delta(),
+                            left.derivative(ch)
+                        )
+                    ),
                     Star(left.clone())
                 )
             }
