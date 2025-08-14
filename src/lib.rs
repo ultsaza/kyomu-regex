@@ -9,6 +9,7 @@ pub enum KyomuRegex {
     Concat(Box<KyomuRegex>, Box<KyomuRegex>),   // ⋅ 
     Or(Box<KyomuRegex>, Box<KyomuRegex>),       // |
     Star(Box<KyomuRegex>),                      // *
+    Plus(Box<KyomuRegex>),                      // +
 }
 
 impl KyomuRegex {
@@ -64,6 +65,13 @@ impl KyomuRegex {
                     Star(left.clone())
                 )
             }
+            Plus(left) => {
+                // D(left+) = (D(left) | δ(left)) ⋅ left*
+                s_concat(
+                    s_or(left.derivative(ch), left.delta()),
+                    Star(left.clone())
+                )
+            }
         }
     }
     pub fn match_eps(&self) -> bool {
@@ -75,6 +83,7 @@ impl KyomuRegex {
                 Concat(left, right) => left.match_eps() && right.match_eps(),
                 Or(left, right) => left.match_eps() || right.match_eps(),
                 Star(_) => true,
+                Plus(_) => false,
             }
         }
     // implementation of δ
@@ -90,6 +99,7 @@ impl KyomuRegex {
             NdChar(c) => Char(c),
             NdEps => Eps,
             NdStar(left) => Star(Box::new(Self::build_from_ast(*left))),
+            NdPlus(left) => Plus(Box::new(Self::build_from_ast(*left))),
             NdConcat(left, right) => Concat(
                 Box::new(Self::build_from_ast(*left)),
                 Box::new(Self::build_from_ast(*right))
@@ -98,6 +108,7 @@ impl KyomuRegex {
                 Box::new(Self::build_from_ast(*left)),
                 Box::new(Self::build_from_ast(*right))
             ),
+            
         }
     }
 
@@ -164,5 +175,14 @@ mod tests {
         assert!(r.whole_match("abcdb"));
         assert!(!r.whole_match("a123c"));
         assert!(!r.whole_match("b"));
+    }
+
+    #[test]
+    fn parse_plus() {
+        let r:KyomuRegex = "(ab)+c".parse().unwrap();
+        assert!(r.whole_match("abc"));
+        assert!(r.whole_match("ababababababababc"));
+        assert!(!r.whole_match("c"));
+        assert!(!r.whole_match("ac"));
     }
 }
