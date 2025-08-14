@@ -42,7 +42,7 @@ impl Lexer<'_> {
         };
         match ch {
             '\\' => TkChar(self.string.next().unwrap_or('\\')), // escape character
-            '|' | '+' => TkOr,
+            '|' => TkOr,
             '(' => TkLparen,
             ')' => TkRparen,
             '*' => TkStar,
