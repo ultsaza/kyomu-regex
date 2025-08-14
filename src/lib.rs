@@ -40,7 +40,7 @@ impl KyomuRegex {
             }
         }
         match self {
-            Char(c) => if *c == ch { Eps } else { Empty },  // D(c) = ε
+            Char(c) => if *c == '.' || *c == ch { Eps } else { Empty },  // D(c) = ε
             Eps => Empty,                                   // D(ε) = ∅      
             Empty => Empty,                                 // D(∅) = ∅
             Concat(left, right) => {
@@ -155,5 +155,14 @@ mod tests {
         assert!(r.whole_match("bcbc"));
         assert!(!r.whole_match("b"));
         assert!(!r.whole_match("abc"));
+    }
+
+    #[test]
+    fn parse_wild_card() {
+        let r:KyomuRegex = "a.*b".parse().unwrap();
+        assert!(r.whole_match("ab"));
+        assert!(r.whole_match("abcdb"));
+        assert!(!r.whole_match("a123c"));
+        assert!(!r.whole_match("b"));
     }
 }
