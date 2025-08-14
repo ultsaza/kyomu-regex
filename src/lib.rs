@@ -10,6 +10,7 @@ pub enum KyomuRegex {
     Or(Box<KyomuRegex>, Box<KyomuRegex>),       // |
     Star(Box<KyomuRegex>),                      // *
     Plus(Box<KyomuRegex>),                      // +
+    Question(Box<KyomuRegex>),                  // ?
 }
 
 impl KyomuRegex {
@@ -72,6 +73,10 @@ impl KyomuRegex {
                     Star(left.clone())
                 )
             }
+            Question(left) => {
+                // D(left?) = D(left)
+                left.derivative(ch)
+            }
         }
     }
     pub fn match_eps(&self) -> bool {
@@ -84,6 +89,7 @@ impl KyomuRegex {
                 Or(left, right) => left.match_eps() || right.match_eps(),
                 Star(_) => true,
                 Plus(_) => false,
+                Question(_) => true,
             }
         }
     // implementation of δ
@@ -100,6 +106,7 @@ impl KyomuRegex {
             NdEps => Eps,
             NdStar(left) => Star(Box::new(Self::build_from_ast(*left))),
             NdPlus(left) => Plus(Box::new(Self::build_from_ast(*left))),
+            NdQuestion(left) => Question(Box::new(Self::build_from_ast(*left))),
             NdConcat(left, right) => Concat(
                 Box::new(Self::build_from_ast(*left)),
                 Box::new(Self::build_from_ast(*right))
@@ -184,5 +191,14 @@ mod tests {
         assert!(r.whole_match("ababababababababc"));
         assert!(!r.whole_match("c"));
         assert!(!r.whole_match("ac"));
+    }
+
+    #[test]
+    fn parse_question() {
+        let r:KyomuRegex = "a?b".parse().unwrap();
+        assert!(r.whole_match("b"));
+        assert!(r.whole_match("ab"));
+        assert!(!r.whole_match("a"));
+        assert!(!r.whole_match("aa"));
     }
 }

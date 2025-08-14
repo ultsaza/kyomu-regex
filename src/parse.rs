@@ -7,6 +7,7 @@ pub enum Node {
     NdStar(Box<Node>),
     NdPlus(Box<Node>),
     NdOr(Box<Node>, Box<Node>),
+    NdQuestion(Box<Node>),
     NdConcat(Box<Node>, Box<Node>),
 }
 pub struct Parser<'a> {
@@ -73,6 +74,10 @@ impl Parser<'_> {
             Token::TkPlus => {
                 self.match_next(Token::TkPlus)?;
                 Ok(Node::NdPlus(Box::new(factor?)))
+            }
+            Token::TkQuestion => {
+                self.match_next(Token::TkQuestion)?;
+                Ok(Node::NdQuestion(Box::new(factor?)))
             }
             _ => factor,
         }
@@ -149,12 +154,12 @@ mod tests {
 
     #[test]
     fn plus_operator() {
-        let mut parse = Parser::new(Lexer::new(r"a+b"));
+        let mut parse = Parser::new(Lexer::new(r"a+b?"));
         assert_eq!(
             parse.expr(),
             Ok(Node::NdConcat(
                 Box::new(Node::NdPlus(Box::new(Node::NdChar('a')))),
-                Box::new(Node::NdChar('b'))
+                Box::new(Node::NdQuestion(Box::new(Node::NdChar('b'))))
             ))
         );
     }
