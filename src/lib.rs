@@ -7,7 +7,7 @@ pub enum KyomuRegex {
     Eps,                                        // ε
     Empty,                                      // ∅
     Concat(Box<KyomuRegex>, Box<KyomuRegex>),   // ⋅ 
-    Or(Box<KyomuRegex>, Box<KyomuRegex>),       // +
+    Or(Box<KyomuRegex>, Box<KyomuRegex>),       // |
     Star(Box<KyomuRegex>),                      // *
 }
 
@@ -44,14 +44,14 @@ impl KyomuRegex {
             Eps => Empty,                                   // D(ε) = ∅      
             Empty => Empty,                                 // D(∅) = ∅
             Concat(left, right) => {
-                // D(left ⋅ right) = D(left) ⋅ right + δ(left) ⋅ D(right)
+                // D(left ⋅ right) = D(left) ⋅ right | δ(left) ⋅ D(right)
                 s_or(
                     s_concat(left.derivative(ch), *right.clone()),
                     s_concat(left.delta(), right.derivative(ch))
                 )
             }
             Or(left, right) => {
-                // D(left + right) = D(left) + D(right)
+                // D(left + right) = D(left) | D(right)
                 s_or(
                     left.derivative(ch),
                     right.derivative(ch)
