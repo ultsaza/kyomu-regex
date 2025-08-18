@@ -1,8 +1,8 @@
 <expr>          ::= <sub_expr> ε
 <sub_expr>      ::= <seq> '|' <sub_expr> | <seq>
 <seq>           ::= <sub_seq> | ''
-<sub_seq>       ::= <quantified> <sub_seq> | <quantified>
-<quantified>    ::= <factor> <quantifier> | <factor>
+<sub_seq>       ::= <quantified> <sub_seq>?
+<quantified>    ::= <factor> <quantifier>?
 <factor>        ::= '(' <sub_expr> ')' | char
 <quantifier>    ::= '*' | '+' | '?' | <bracket>
-<bracket>       ::= '{' num (',' | ',' num)? '}'
+<bracket>       ::= '{' num (',' | ',' num )? '}'
