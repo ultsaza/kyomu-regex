@@ -1,6 +1,7 @@
-<expr>          ::= <sub_expr> TkEps
+<expr>          ::= <sub_expr> ε
 <sub_expr>      ::= <seq> '|' <sub_expr> | <seq>
 <seq>           ::= <sub_seq> | ''
-<sub_seq>       ::= <quantifier> <sub_seq> | <quantifier>
-<quantifier>    ::= <factor> '*' | <factor>
-<factor>        ::= '(' <sub_expr> ')' | TkChar
+<sub_seq>       ::= <quantified> <sub_seq> | <quantified>
+<quantified>    ::= <factor> <quantifier> | <factor>
+<factor>        ::= '(' <sub_expr> ')' | char
+<quantifier>    ::= '*' | '+' | '?' | '{' num ','? num? '}'
