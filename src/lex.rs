@@ -9,6 +9,7 @@ pub enum Token {
     TkQuestion,
     TkLparen,
     TkRparen,
+    TkBracket { min: u32, max : u32 }, // default {0, 0}
     TkEps
 }
 
@@ -52,6 +53,7 @@ impl Lexer<'_> {
             '*' => TkStar,
             '+' => TkPlus,
             '?' => TkQuestion,
+            '{' 
             ' ' | '\n' | '\t' => self.next_token(), // skip whitespace
             _ => TkChar(ch)
         }
