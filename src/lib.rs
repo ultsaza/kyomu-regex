@@ -11,6 +11,7 @@ pub enum KyomuRegex {
     Star(Box<KyomuRegex>),                      // *
     Plus(Box<KyomuRegex>),                      // +
     Question(Box<KyomuRegex>),                  // ?
+    Bracket(u32, u32, Box<KyomuRegex>),         // {min, max}
 }
 
 impl KyomuRegex {
@@ -41,6 +42,16 @@ impl KyomuRegex {
                 (l, r) => Concat(Box::new(l), Box::new(r)),
             }
         }
+        // Helper to operate bracket
+        fn s_bracket(min: u32, max: u32, r: KyomuRegex) -> KyomuRegex {
+            if min > max {
+                Empty
+            } else if min == 0 && max == 0 {
+                Question(Box::new(r))
+            } else {
+                Bracket(min.saturating_sub(1), max.saturating_sub(1), Box::new(r))
+            }
+        }
         match self {
             Char(c) => if *c == '.' || *c == ch { Eps } else { Empty },  // D(c) = ε
             Eps => Empty,                                   // D(ε) = ∅      
@@ -53,7 +64,7 @@ impl KyomuRegex {
                 )
             }
             Or(left, right) => {
-                // D(left + right) = D(left) | D(right)
+                // D(left | right) = D(left) | D(right)
                 s_or(
                     left.derivative(ch),
                     right.derivative(ch)
@@ -83,6 +94,25 @@ impl KyomuRegex {
                 // D(left?) = D(left)
                 left.derivative(ch)
             }
+            Bracket(min, max, r) => {
+                // D(r{min, max}) = D(r) ⋅ r{min-1, max-1} | δ(r) ⋅ r{min-1, max-1}
+                match (min, max) {
+                    (0, 0) => Eps,
+                    (_, _) if min > max => Empty,
+                    (_, _) => {
+                        s_or(
+                            s_concat(
+                                r.derivative(ch),
+                                s_bracket(min.saturating_sub(1), max.saturating_sub(1), *r.clone())
+                            ),
+                            s_concat(
+                                r.delta(),
+                                s_bracket(min.saturating_sub(1), max.saturating_sub(1), *r.clone())
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
     pub fn match_eps(&self) -> bool {
@@ -94,8 +124,9 @@ impl KyomuRegex {
                 Concat(left, right) => left.match_eps() && right.match_eps(),
                 Or(left, right) => left.match_eps() || right.match_eps(),
                 Star(_) => true,
-                Plus(_) => false,
+                Plus(r) => r.match_eps(),
                 Question(_) => true,
+                Bracket(min, max, r) => (*min == 0 || r.match_eps()) && (*min <= *max),
             }
         }
     // implementation of δ
@@ -121,7 +152,9 @@ impl KyomuRegex {
                 Box::new(Self::build_from_ast(*left)),
                 Box::new(Self::build_from_ast(*right))
             ),
-            
+            NdBracket(min, max, r) => {
+                Bracket(min, max, Box::new(Self::build_from_ast(*r)))
+            }
         }
     }
 
@@ -206,5 +239,16 @@ mod tests {
         assert!(r.whole_match("ab"));
         assert!(!r.whole_match("a"));
         assert!(!r.whole_match("aa"));
+    }
+
+    #[test]
+    fn parse_bracket() {
+        let r:KyomuRegex = "a{2,3}b".parse().unwrap();
+        assert!(r.whole_match("aab"));
+        assert!(r.whole_match("aaab"));
+        assert!(!r.whole_match("a"));
+        assert!(!r.whole_match("aa"));
+        assert!(!r.whole_match("aaa"));
+        assert!(!r.whole_match("b"));
     }
 }
