@@ -3,7 +3,7 @@ use proconio::input;
 use colored::*;
 
 fn main() {
-    println!("Input a pattern (e.g., {} ):", "a.b*(c|d)+e?".cyan().bold());
+    println!("Input a pattern (e.g., {} ):", "a.b*(c|d)+e?f{2,3}".cyan().bold());
     input! { pattern: String }
     println!("{}", "Input a string to match:");
     input! { text: String }
