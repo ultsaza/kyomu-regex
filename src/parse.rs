@@ -9,6 +9,7 @@ pub enum Node {
     NdOr(Box<Node>, Box<Node>),
     NdQuestion(Box<Node>),
     NdConcat(Box<Node>, Box<Node>),
+    NdBracket (u32, u32, Box<Node>),
 }
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
@@ -64,7 +65,7 @@ impl Parser<'_> {
         }
     }
 
-    fn star(&mut self) -> Result<Node> {
+    fn quantifier(&mut self) -> Result<Node> {
         let factor = self.factor();
         match &self.look {
             Token::TkStar => {
@@ -84,17 +85,17 @@ impl Parser<'_> {
     }
 
     fn sub_seq(&mut self) -> Result<Node> {
-        let star = self.star();
+        let quantifier = self.quantifier();
         match &self.look {
             Token::TkLparen | Token::TkChar(_) => {
                 Ok(
                     Node::NdConcat(
-                        Box::new(star?),
+                        Box::new(quantifier?),
                         Box::new(self.sub_seq()?),
                     ),
                 )
             }
-            _ => star,
+            _ => quantifier,
         }
     }
 

@@ -121,7 +121,10 @@ impl KyomuRegex {
                 Box::new(Self::build_from_ast(*left)),
                 Box::new(Self::build_from_ast(*right))
             ),
-            
+            _ => {
+                eprintln!("KyomuRegex: Unsupported AST node: {:?}", node);
+                Empty // Fallback for unsupported nodes
+            } 
         }
     }
 
