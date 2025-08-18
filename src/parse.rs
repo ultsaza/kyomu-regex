@@ -9,7 +9,7 @@ pub enum Node {
     NdOr(Box<Node>, Box<Node>),
     NdQuestion(Box<Node>),
     NdConcat(Box<Node>, Box<Node>),
-    NdBracket (u32, u32, Box<Node>),
+    NdBracket (u32, Option<u32>, Box<Node>),
 }
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
@@ -176,10 +176,10 @@ mod tests {
         assert_eq!(
             parse.expr(),
             Ok(Node::NdConcat(
-                Box::new(Node::NdBracket(2, 3, Box::new(Node::NdChar('a')))),
+                Box::new(Node::NdBracket(2, Some(3), Box::new(Node::NdChar('a')))),
                 Box::new(Node::NdConcat(
-                    Box::new(Node::NdBracket(0, 0, Box::new(Node::NdChar('b')))),
-                    Box::new(Node::NdBracket(4, 0, Box::new(Node::NdChar('c'))))
+                    Box::new(Node::NdBracket(0, Some(0), Box::new(Node::NdChar('b')))),
+                    Box::new(Node::NdBracket(4, None, Box::new(Node::NdChar('c'))))
                 ))
             ))
         );

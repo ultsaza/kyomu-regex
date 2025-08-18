@@ -9,7 +9,7 @@ pub enum Token {
     TkQuestion,
     TkLparen,
     TkRparen,
-    TkBracket(u32, u32), // default {0, 0}
+    TkBracket(u32, Option<u32>),  // max == none means unbounded
     TkEps
 }
 
@@ -63,7 +63,7 @@ impl Lexer<'_> {
     fn next_token_with_bracket(&mut self) -> Token {
         use Token::*;
         let mut min = 0;
-        let mut max = 0;
+        let mut max = None; // -1 indicates unbounded
         let mut is_min = true;
         while let Some(ch) = self.string.next() {
             match ch {
@@ -72,14 +72,15 @@ impl Lexer<'_> {
                     if is_min {
                         min = min * 10 + d;
                     } else {
-                        max = max * 10 + d;
+                        max = Some(max.unwrap() * 10 + d);
                     }
                 }
                 ',' => {
                     if is_min { 
                         is_min = false; 
+                        max = Some(0);
                     } else { 
-                        return TkEps;           // unexpected character 
+                        return TkEps;           // unexpected case
                     } 
                 }
                 '}' => return TkBracket (min, max),
@@ -146,11 +147,11 @@ mod tests {
     fn scan_bracket() {
         let mut lexer = Lexer::new("a{2,3}b{0,}c{4}");
         assert_eq!(lexer.next_token(), (Token::TkChar('a')));
-        assert_eq!(lexer.next_token(), (Token::TkBracket(2, 3)));
+        assert_eq!(lexer.next_token(), (Token::TkBracket(2, Some(3))));
         assert_eq!(lexer.next_token(), (Token::TkChar('b')));
-        assert_eq!(lexer.next_token(), (Token::TkBracket (0, 0)));
+        assert_eq!(lexer.next_token(), (Token::TkBracket (0, Some(0))));
         assert_eq!(lexer.next_token(), (Token::TkChar('c')));
-        assert_eq!(lexer.next_token(), (Token::TkBracket (4, 0)));
+        assert_eq!(lexer.next_token(), (Token::TkBracket (4, None)));
         assert_eq!(lexer.next_token(), (Token::TkEps));
     }
 }
