@@ -64,20 +64,20 @@ impl Lexer<'_> {
         use Token::*;
         let mut min = 0;
         let mut max = None; // -1 indicates unbounded
-        let mut is_min = true;
+        let mut maybe_unbound = true;
         while let Some(ch) = self.string.next() {
             match ch {
                 '0'..='9' => {
                     let d = ch.to_digit(10).unwrap();
-                    if is_min {
+                    if maybe_unbound {
                         min = min * 10 + d;
                     } else {
                         max = Some(max.unwrap() * 10 + d);
                     }
                 }
                 ',' => {
-                    if is_min { 
-                        is_min = false; 
+                    if maybe_unbound { 
+                        maybe_unbound = false; 
                         max = Some(0);
                     } else { 
                         return TkEps;           // unexpected case
@@ -88,7 +88,7 @@ impl Lexer<'_> {
                 _ => return TkEps,             // unexpected character
             }
         }
-        TkEps  // end of input without closing bracket
+        TkEps
     }
 }
 
