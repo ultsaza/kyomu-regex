@@ -92,7 +92,7 @@ impl KyomuRegex {
                         s_concat(res, Star(r.clone())).derivative(ch)
                     }
                     // D(r{min})
-                    (min, None) => {
+                    (_, None) => {
                         let res = (0..*min).fold(Eps, |acc, _| s_concat(*r.clone(), acc));
                         res.derivative(ch)
                     }
