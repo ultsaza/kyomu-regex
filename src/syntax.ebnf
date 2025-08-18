@@ -4,4 +4,5 @@
 <sub_seq>       ::= <quantified> <sub_seq> | <quantified>
 <quantified>    ::= <factor> <quantifier> | <factor>
 <factor>        ::= '(' <sub_expr> ')' | char
-<quantifier>    ::= '*' | '+' | '?' | '{' num ','? num? '}'
+<quantifier>    ::= '*' | '+' | '?' | <bracket>
+<bracket>       ::= '{' num (',' | ',' num)? '}'
