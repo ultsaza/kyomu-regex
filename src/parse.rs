@@ -67,7 +67,8 @@ impl Parser<'_> {
 
     fn quantifier(&mut self) -> Result<Node> {
         let factor = self.factor();
-        match &self.look {
+        let token = self.look.clone();
+        match token {
             Token::TkStar => {
                 self.match_next(Token::TkStar)?;
                 Ok(Node::NdStar(Box::new(factor?)))
@@ -79,6 +80,10 @@ impl Parser<'_> {
             Token::TkQuestion => {
                 self.match_next(Token::TkQuestion)?;
                 Ok(Node::NdQuestion(Box::new(factor?)))
+            }
+            Token::TkBracket(min, max) => {
+                self.match_next(Token::TkBracket(min, max))?;
+                Ok(Node::NdBracket(min, max, Box::new(factor?)))
             }
             _ => factor,
         }
@@ -161,6 +166,21 @@ mod tests {
             Ok(Node::NdConcat(
                 Box::new(Node::NdPlus(Box::new(Node::NdChar('a')))),
                 Box::new(Node::NdQuestion(Box::new(Node::NdChar('b'))))
+            ))
+        );
+    }
+
+    #[test]
+    fn bracket_operator() {
+        let mut parse = Parser::new(Lexer::new(r"a{2,3}b{0,}c{4}"));
+        assert_eq!(
+            parse.expr(),
+            Ok(Node::NdConcat(
+                Box::new(Node::NdBracket(2, 3, Box::new(Node::NdChar('a')))),
+                Box::new(Node::NdConcat(
+                    Box::new(Node::NdBracket(0, 0, Box::new(Node::NdChar('b')))),
+                    Box::new(Node::NdBracket(4, 0, Box::new(Node::NdChar('c'))))
+                ))
             ))
         );
     }
