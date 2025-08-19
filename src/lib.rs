@@ -86,15 +86,15 @@ impl KyomuRegex {
                 match (min, max) {
                     // D(ε) = ∅ 
                     (0, Some(0)) => Empty,
-                    // D(r{min, infty}) = D(r{min} ⋅ r* )
+                    // D(r{min, infty}) = D(r..r ⋅ r*)
                     (_, Some(0)) => {
-                        let res = (0..*min).fold(Eps, |acc, _| s_concat(*r.clone(), acc));
-                        s_concat(res, Star(r.clone())).derivative(ch)
+                        let rr = (0..*min).fold(Eps, |acc, _| s_concat(*r.clone(), acc));
+                        s_concat(rr, Star(r.clone())).derivative(ch)
                     }
-                    // D(r{min})
+                    // D(r{min}) = D(r..r)
                     (_, None) => {
-                        let res = (0..*min).fold(Eps, |acc, _| s_concat(*r.clone(), acc));
-                        res.derivative(ch)
+                        let rr = (0..*min).fold(Eps, |acc, _| s_concat(*r.clone(), acc));
+                        rr.derivative(ch)
                     }
 
                     // invalid case (e.g., {4,2})
