@@ -260,7 +260,7 @@ mod tests {
         assert!(!r.whole_match("aa"));
         assert!(!r.whole_match("aaa"));
         assert!(!r.whole_match("b"));
-        let r: KyomuRegex = "a{0}b".parse().unwrap(); // == a?b
+        let r: KyomuRegex = "a{0}b".parse().unwrap(); // == "b"
         assert!(r.whole_match("b"));
         assert!(!r.whole_match("ab"));
         assert!(!r.whole_match("a"));
