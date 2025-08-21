@@ -1,4 +1,3 @@
-use std::char;
 mod lex;
 mod parse;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
