@@ -36,7 +36,7 @@ impl Display for Token {
 }
 
 impl Lexer<'_> {
-    pub fn new(string: &str) -> Lexer {
+    pub fn new(string: &str) -> Lexer<'_> {
         Lexer {
             string: string.chars()
         }
